@@ -1,0 +1,16 @@
+{
+  "description": "browser eval",
+  "manifest_version": 2,
+  "name": "beval",
+  "version": "0.0.1",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'",
+  "background": {
+    "scripts": ["background-script.js"]
+  },
+  "permissions": ["nativeMessaging", "tabs", "activeTab", "<all_urls>"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "beval@h43z"
+    }
+  }
+}
