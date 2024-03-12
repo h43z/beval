@@ -2,18 +2,22 @@
 
 Beval (BrowserEval) creates a unix socket that allows bidirectional communication with your browser.
 
-Javascript code sent to the socket is evaluated by default in the beval **extension context**.
+The Javascript code sent to the socket is evaluated by default in the beval **extension context**
+with access to the full [extension API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API).
+
 The completion value of the evaluated code is send back through the socket.
-The execution context can be changed.
+
+As you get full access to the browser APIs you can go from extension context to
+content script context and page context.
 
 This project makes use of [native messaging](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_messaging).
 
-First install the [extension](https://addons.mozilla.org/en-US/firefox/addon/beval/).
+To use beval first install the [extension](https://addons.mozilla.org/en-US/firefox/addon/beval/).
 
 Next setup the native messaging manifest file.
-(This is an example for linux ubuntu and firefox)
 
 ```
+# this is an example for Linux Ubuntu and Firefox
 cat << EOF > ~/.mozilla/native-messaging-hosts/beval.json
 {
   "name": "beval",
@@ -28,7 +32,8 @@ EOF
 flatpak permission-set webextensions beval snap.firefox yes
 ```
 
-Make sure you set the right path to the `beval-nmh.mjs` nodejs script.
+Make sure you place the `beval-nmh.mjs` nodejs script on your machine and set
+the right path in the native messaging manifest file.
 
 Every browser profile will spawn its own native messaging host node script and
 creates its own socket file at `/tmp/beval.socket.*`.
@@ -46,8 +51,8 @@ echo '"browser.tabs.query({})"' | nc -U /tmp/beval.socket.0 | head -1
 # inject content script into tab with id 60
 echo '"browser.tabs.executeScript(60, {code:`alert(1)`})"' | nc -U /tmp/beval.socket.0
 
-# inject content script and break out of it via window.eval to get
-# access dom and js variables of page loaded in tab with id 43
+# inject content script but break out of it via window.eval to get
+# access to the dom and js variables of the page loaded in tab with the id 43
 # https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#content_script_environment
 echo '"browser.tabs.executeScript(43, {code:`window.eval(\"x\")`})"' | nc -U /tmp/beval.socket.0
 
@@ -77,4 +82,5 @@ socket.on('data', data => {
 })
 ```
 
-If you want to use beval in a REPL checkout http://github.com/h43z/brepl
+I created a proof of concept [bREPL](http://github.com/h43z/brepl) which works
+like a simple version of the REPL from the web dev tools but in your terminal.
